@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import jp.dip.taoe.android.myvoicerecorder.util.NormalizeWaveData;
 import jp.dip.taoe.android.myvoicerecorder.util.WaveFileHeaderCreator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -78,18 +79,20 @@ public class VoiceRecorderActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		final int size = 8000;
+		final int freq = 440;
 		switch (item.getItemId()) {
 		case Menu.FIRST:
 			displayView.clearWaveData();
 			break;
 		case Menu.FIRST + 1:
-			displayView.addNoizeData();
+			displayView.addWaveData(NormalizeWaveData.createNoiseData(size));
 			break;
 		case Menu.FIRST + 2:
-			displayView.addSineData();
+			displayView.addWaveData(NormalizeWaveData.createSineData(size, freq));
 			break;
 		case Menu.FIRST + 3:
-			displayView.addSquareData();
+			displayView.addWaveData(NormalizeWaveData.createSquareData(size, freq));
 			break;
 		}
 		return true;

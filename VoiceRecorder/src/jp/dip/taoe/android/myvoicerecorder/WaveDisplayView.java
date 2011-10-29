@@ -4,7 +4,6 @@
 package jp.dip.taoe.android.myvoicerecorder;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Random;
 
 import jp.dip.taoe.android.myvoicerecorder.util.NormalizeWaveData;
 import android.content.Context;
@@ -20,7 +19,7 @@ import android.view.View;
 public class WaveDisplayView extends View implements WaveDataStore {
 
 	private final Handler handler;
-	private final ByteArrayOutputStream waveData = new ByteArrayOutputStream(8000 * 10);
+	private final ByteArrayOutputStream waveData = new ByteArrayOutputStream(8000 * 2 * 10);
 
 	private final Paint waveBaseLine = new Paint();
 	private final Paint fftDataLine = new Paint();
@@ -92,10 +91,24 @@ public class WaveDisplayView extends View implements WaveDataStore {
 		addWaveData(data, 0, data.length);
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.dip.taoe.android.myvoicerecorder.WaveDataStore#addWaveData(byte[], int, int)
+	 */
 	@Override
 	public void addWaveData(byte[] data, int offset, int length) {
 		waveData.write(data, offset, length);
 		fireInvalidate();
+	}
+
+	/* (non-Javadoc)
+	 * @see jp.dip.taoe.android.myvoicerecorder.WaveDataStore#closeWaveData()
+	 */
+	@Override
+	public void closeWaveData() {
+		byte[] bs = waveData.toByteArray();
+		byte[] data = NormalizeWaveData.normalizeWaveData(bs);
+		waveData.reset();
+		addWaveData(data);
 	}
 
 	/* (non-Javadoc)
@@ -116,47 +129,4 @@ public class WaveDisplayView extends View implements WaveDataStore {
 		});
 	}
 
-
-	private static final int DATA_SIZE = 8000;
-
-	public void addNoizeData() {
-		byte[] data = new byte[DATA_SIZE * 2];
-		Random rand = new Random();
-		rand.nextBytes(data);
-		addWaveData(data);
-	}
-
-	public void addSineData() {
-		byte[] data = new byte[DATA_SIZE * 2];
-
-		final double freq = 440;
-		double t = 0.0;
-		double dt = 1.0 / DATA_SIZE;
-		for (int index = 0; index < DATA_SIZE; index++, t += dt) {
-			short s = (short) (Short.MAX_VALUE * Math.sin(2.0 * Math.PI * t * freq));
-			NormalizeWaveData.writeShortData(s, data, index * 2);
-		}
-
-		addWaveData(data);
-	}
-
-	public void addSquareData() {
-		byte[] data = new byte[DATA_SIZE * 2];
-
-		final double freq = 440;
-		double t = 0.0;
-		double dt = 1.0 / DATA_SIZE;
-		for (int index = 0; index < DATA_SIZE; index++, t += dt) {
-			double d = Math.sin(2.0 * Math.PI * t * freq);
-			short s = 0;
-			if (d > 0.0) {
-				s = Short.MAX_VALUE;
-			} else if (d < 0.0) {
-				s = -Short.MAX_VALUE;
-			}
-			NormalizeWaveData.writeShortData(s, data, index * 2);
-		}
-
-		addWaveData(data);
-	}
 }

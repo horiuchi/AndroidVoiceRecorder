@@ -101,6 +101,25 @@ public class NormalizeWaveDataTest extends TestCase {
 	}
 
 
+	public void testConvertDouble2ByteArray1() {
+		byte[] bs = new byte[10];
+		double d = 1.0;
+		int offset = 0;
+
+		NormalizeWaveData.convertFromDouble(d, bs, offset);
+		assertEquals(d, NormalizeWaveData.convertToDouble(bs, offset));
+	}
+
+	public void testConvertDouble2ByteArray2() {
+		byte[] bs = new byte[10];
+		double d = -1.0;
+		int offset = 0;
+
+		NormalizeWaveData.convertFromDouble(d, bs, offset);
+		assertEquals(d, NormalizeWaveData.convertToDouble(bs, offset));
+	}
+
+
 	public void testConvertPlotData1() {
 		double[] ds = new double[20];
 		Arrays.fill(ds, 1.0);

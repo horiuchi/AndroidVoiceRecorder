@@ -1,6 +1,7 @@
 package jp.dip.taoe.android.myvoicerecorder.util;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.transform.FastFourierTransformer;
@@ -15,9 +16,54 @@ public class NormalizeWaveData {
 		out[offset] = (byte) s;
 		out[offset + 1] = (byte) (s >> 8);
 	}
+	public static void convertFromDouble(double d, byte[]bs, int offset) {
+		d *= Short.MAX_VALUE;
+		writeShortData((short) d, bs, offset);
+	}
 
 	public static short readShortData(byte[] in, int offset) {
 		return (short) ((in[offset + 1] << 8) + (in[offset] & 0xff));
+	}
+	public static double convertToDouble(byte[] bs, int offset) {
+		double d = readShortData(bs, offset);
+		d /= Short.MAX_VALUE;
+		return d;
+	}
+
+
+	public static byte[] createNoiseData(int sizeByShort) {
+		byte[] data = new byte[sizeByShort * 2];
+		Random rand = new Random();
+		rand.nextBytes(data);
+		return data;
+	}
+
+	public static byte[] createSineData(int sizeByShort, double frequency) {
+		byte[] data = new byte[sizeByShort * 2];
+		double t = 0.0;
+		double dt = 1.0 / sizeByShort;
+		for (int index = 0; index < sizeByShort; index++, t += dt) {
+			short s = (short) (Short.MAX_VALUE * Math.sin(2.0 * Math.PI * t * frequency));
+			writeShortData(s, data, index * 2);
+		}
+		return data;
+	}
+
+	public static byte[] createSquareData(int sizeByShort, double frequency) {
+		byte[] data = new byte[sizeByShort * 2];
+		double t = 0.0;
+		double dt = 1.0 / sizeByShort;
+		for (int index = 0; index < sizeByShort; index++, t += dt) {
+			double d = Math.sin(2.0 * Math.PI * t * frequency);
+			short s = 0;
+			if (d > 0.0) {
+				s = Short.MAX_VALUE;
+			} else if (d < 0.0) {
+				s = -Short.MAX_VALUE;
+			}
+			writeShortData(s, data, index * 2);
+		}
+		return data;
 	}
 
 
@@ -33,11 +79,6 @@ public class NormalizeWaveData {
 			result[index] = convertToDouble(waveData, index * 2);
 		}
 		return result;
-	}
-	private static double convertToDouble(byte[] bs, int offset) {
-		double d = readShortData(bs, offset);
-		d /= Short.MAX_VALUE;
-		return d;
 	}
 
 	/**
@@ -105,12 +146,12 @@ public class NormalizeWaveData {
 		return result;
 	}
 	private static double[] convertRequiredArray(double[] ds) {
-		double[] result = new double[getRequiredArray(ds.length)];
+		double[] result = new double[getRequiredLength(ds.length)];
 		Arrays.fill(result, 0.0);
 		System.arraycopy(ds, 0, result, 0, ds.length);
 		return result;
 	}
-	private static int getRequiredArray(int length) {
+	private static int getRequiredLength(int length) {
 		int res = length - 1;
 		res = (res | (res >> 1));
 		res = (res | (res >> 2));
@@ -120,4 +161,20 @@ public class NormalizeWaveData {
 		return res + 1;
 	}
 
+
+	private static final double NORM_PARAM = 0.05;
+
+	public static byte[] normalizeWaveData(byte[] bs) {
+		byte[] result = new byte[bs.length];
+		for (int index = 0; index < bs.length / 2; index++) {
+			double d = convertToDouble(bs, index * 2);
+			convertFromDouble(normalize(d), result, index * 2);
+		}
+		return result;
+	}
+	private static double normalize(double d) {
+		double x = (1+NORM_PARAM) * Math.abs(d) - NORM_PARAM;
+		if (x <= 0) return 0.0;
+		return Math.signum(d) * Math.sqrt(x);
+	}
 }

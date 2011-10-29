@@ -47,6 +47,7 @@ public class MicRecordTask extends StopableTask {
 					break;
 				}
 			}
+			store.closeWaveData();
 
 		} finally {
 			recorder.stop();
