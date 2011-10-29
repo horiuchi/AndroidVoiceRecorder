@@ -14,6 +14,100 @@ import junit.framework.TestCase;
  */
 public class NormalizeWaveDataTest extends TestCase {
 
+	public void testConvertShort2ByteArray1() {
+		byte[] bs = new byte[20];
+		short s = 0;
+		short s2 = 1;
+		short s3 = -1;
+		short s4 = 100;
+		short s5 = Short.MAX_VALUE;
+		short s6 = -Short.MAX_VALUE;
+		short s7 = Short.MIN_VALUE;
+
+		NormalizeWaveData.writeShortData(s, bs, 0);
+		assertEquals(0, bs[0]);
+		assertEquals(0, bs[1]);
+		assertEquals(s, NormalizeWaveData.readShortData(bs, 0));
+	}
+
+	public void testConvertShort2ByteArray2() {
+		byte[] bs = new byte[20];
+		short s = 1;
+		int offset = 2;
+
+		NormalizeWaveData.writeShortData(s, bs, offset);
+		assertEquals(1, bs[offset]);
+		assertEquals(0, bs[offset + 1]);
+		assertEquals(s, NormalizeWaveData.readShortData(bs, offset));
+	}
+
+	public void testConvertShort2ByteArray3() {
+		byte[] bs = new byte[20];
+		short s = -1;
+		int offset = 4;
+
+		NormalizeWaveData.writeShortData(s, bs, offset);
+		assertEquals((byte)0xff, bs[offset]);
+		assertEquals((byte)0xff, bs[offset + 1]);
+		assertEquals(s, NormalizeWaveData.readShortData(bs, offset));
+	}
+
+	public void testConvertShort2ByteArray4() {
+		byte[] bs = new byte[20];
+		short s = 100;
+		int offset = 6;
+
+		NormalizeWaveData.writeShortData(s, bs, offset);
+		assertEquals(100, bs[offset]);
+		assertEquals(0, bs[offset + 1]);
+		assertEquals(s, NormalizeWaveData.readShortData(bs, offset));
+	}
+
+	public void testConvertShort2ByteArray5() {
+		byte[] bs = new byte[20];
+		short s = 10000;
+		int offset = 8;
+
+		NormalizeWaveData.writeShortData(s, bs, offset);
+		assertEquals(0x10, bs[offset]);
+		assertEquals(0x27, bs[offset + 1]);
+		assertEquals(s, NormalizeWaveData.readShortData(bs, offset));
+	}
+
+	public void testConvertShort2ByteArray10() {
+		byte[] bs = new byte[20];
+		short s = Short.MAX_VALUE;
+		int offset = 18;
+
+		NormalizeWaveData.writeShortData(s, bs, offset);
+		assertEquals((byte)0xff, bs[offset]);
+		assertEquals((byte)0x7f, bs[offset + 1]);
+		assertEquals(s, NormalizeWaveData.readShortData(bs, offset));
+	}
+
+	public void testConvertShort2ByteArray11() {
+		byte[] bs = new byte[20];
+		short s = -Short.MAX_VALUE;
+		int offset = 16;
+
+		NormalizeWaveData.writeShortData(s, bs, offset);
+		assertEquals((byte)0x01, bs[offset]);
+		assertEquals((byte)0x80, bs[offset + 1]);
+		assertEquals(s, NormalizeWaveData.readShortData(bs, offset));
+	}
+
+	public void testConvertShort2ByteArray12() {
+		byte[] bs = new byte[20];
+		short s = Short.MIN_VALUE;
+		int offset = 14;
+
+		NormalizeWaveData.writeShortData(s, bs, offset);
+		assertEquals((byte)0x00, bs[offset]);
+		assertEquals((byte)0x80, bs[offset + 1]);
+		assertEquals(s, NormalizeWaveData.readShortData(bs, offset));
+	}
+
+
 	public void testConvertPlotData1() {
 		double[] ds = new double[20];
 		Arrays.fill(ds, 1.0);

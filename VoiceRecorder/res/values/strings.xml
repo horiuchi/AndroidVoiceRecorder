@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, VoiceChangerSampleActivity!</string>
-    <string name="app_name">VoiceChangerSample</string>
+    <string name="app_name">MyVoiceRecorder</string>
     <string name="menu_button_recording">Record</string>
     <string name="menu_button_play">Play</string>
     <string name="menu_button_stop">Stop</string>

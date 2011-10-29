@@ -33,18 +33,17 @@ public final class R {
         public static final int save_dialog=0x7f030001;
     }
     public static final class string {
-        public static final int app_name=0x7f040001;
-        public static final int dialog_save_button_cancel=0x7f040009;
-        public static final int dialog_save_button_save=0x7f040008;
-        public static final int dialog_save_message=0x7f04000a;
-        public static final int dialog_save_radio_raw=0x7f04000b;
-        public static final int dialog_save_radio_wav=0x7f04000c;
-        public static final int dialog_save_title=0x7f040007;
-        public static final int hello=0x7f040000;
-        public static final int menu_button_play=0x7f040003;
-        public static final int menu_button_recording=0x7f040002;
-        public static final int menu_button_save=0x7f040006;
-        public static final int menu_button_stop=0x7f040004;
-        public static final int menu_button_transform=0x7f040005;
+        public static final int app_name=0x7f040000;
+        public static final int dialog_save_button_cancel=0x7f040008;
+        public static final int dialog_save_button_save=0x7f040007;
+        public static final int dialog_save_message=0x7f040009;
+        public static final int dialog_save_radio_raw=0x7f04000a;
+        public static final int dialog_save_radio_wav=0x7f04000b;
+        public static final int dialog_save_title=0x7f040006;
+        public static final int menu_button_play=0x7f040002;
+        public static final int menu_button_recording=0x7f040001;
+        public static final int menu_button_save=0x7f040005;
+        public static final int menu_button_stop=0x7f040003;
+        public static final int menu_button_transform=0x7f040004;
     }
 }

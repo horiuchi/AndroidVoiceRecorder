@@ -1,12 +1,8 @@
 package jp.dip.taoe.android.myvoicerecorder;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 
 import jp.dip.taoe.android.myvoicerecorder.util.WaveFileHeaderCreator;
 import android.app.Activity;
@@ -49,10 +45,10 @@ public class VoiceRecorderActivity extends Activity {
 	private Button saveButton;
 
 	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
 		Log.d(TAG, "Start.");
 		LinearLayout displayLayout = (LinearLayout) findViewById(R.id.displayView);
@@ -67,7 +63,7 @@ public class VoiceRecorderActivity extends Activity {
 
 		configureEvnetListener();
 		setInitializeState();
-    }
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -173,8 +169,8 @@ public class VoiceRecorderActivity extends Activity {
 	}
 
 	private boolean saveSoundFile(File savefile, boolean isWavFile) {
-		File input = getCacheFile();
-		if (!input.exists()) {
+		byte[] data = displayView.getAllWaveData();
+		if (data.length == 0) {
 			Log.w(TAG, "save data is not found.");
 			return false;
 		}
@@ -183,15 +179,16 @@ public class VoiceRecorderActivity extends Activity {
 			savefile.createNewFile();
 
 			FileOutputStream targetStream = new FileOutputStream(savefile);
-			if (isWavFile) {
-				WaveFileHeaderCreator.pushWaveHeader(targetStream, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_ENCODING, (int) input.length());
+			try {
+				if (isWavFile) {
+					WaveFileHeaderCreator.pushWaveHeader(targetStream, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_ENCODING, data.length);
+				}
+				targetStream.write(data);
+			} finally {
+				if (targetStream != null) {
+					targetStream.close();
+				}
 			}
-			FileChannel channelSource = new FileInputStream(input).getChannel();
-			FileChannel channelTarget = targetStream.getChannel();
-			channelSource.transferTo(0, channelSource.size(), channelTarget);
-			channelTarget.close();
-			channelSource.close();
-
 			return true;
 		} catch (IOException ex) {
 			Log.w(TAG, "Fail to save sound file.", ex);
@@ -204,14 +201,9 @@ public class VoiceRecorderActivity extends Activity {
 		Log.i(TAG, "start recording.");
 		setButtonEnable(true);
 		try {
-			File cacheFile = getCacheFile();
-			cacheFile.createNewFile();
-			BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(cacheFile));
-			recordTask = new MicRecordTask(progressBar, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_ENCODING, stream);
+			recordTask = new MicRecordTask(progressBar, displayView, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_ENCODING);
 			recordTask.setMax(10 * getDataBytesPerSecond(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_ENCODING));
 		} catch (IllegalArgumentException ex) {
-			Log.w(TAG, "Fail to create MicRecordTask.", ex);
-		} catch (IOException ex) {
 			Log.w(TAG, "Fail to create MicRecordTask.", ex);
 		}
 		recordTask.start();
@@ -226,19 +218,10 @@ public class VoiceRecorderActivity extends Activity {
 	private void startPlaying() {
 		Log.i(TAG, "start playing.");
 
-		File cacheFile = getCacheFile();
-		if (!cacheFile.exists()) {
-			Log.w(TAG, "fail not found.");
-			return;
-		}
 		setButtonEnable(true);
 		try {
-			BufferedInputStream stream = new BufferedInputStream(new FileInputStream(cacheFile));
-			playTask = new AudioPlayTask(progressBar, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_ENCODING, stream);
-			playTask.setMax((int) cacheFile.length());
+			playTask = new AudioPlayTask(progressBar, displayView, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_ENCODING);
 		} catch (IllegalArgumentException ex) {
-			Log.w(TAG, "Fail to create MicRecordTask.", ex);
-		} catch (IOException ex) {
 			Log.w(TAG, "Fail to create MicRecordTask.", ex);
 		}
 		playTask.start();

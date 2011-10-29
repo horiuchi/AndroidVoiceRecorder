@@ -5,7 +5,21 @@ import java.util.Arrays;
 import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.transform.FastFourierTransformer;
 
+import android.util.Log;
+
 public class NormalizeWaveData {
+
+	private static final String TAG = "NormalizeWaveData";
+
+	public static void writeShortData(short s, byte[] out, int offset) {
+		out[offset] = (byte) s;
+		out[offset + 1] = (byte) (s >> 8);
+	}
+
+	public static short readShortData(byte[] in, int offset) {
+		return (short) ((in[offset + 1] << 8) + (in[offset] & 0xff));
+	}
+
 
 	/**
 	 * rawデータを、doubleの配列に変換する。<br>
@@ -21,7 +35,7 @@ public class NormalizeWaveData {
 		return result;
 	}
 	private static double convertToDouble(byte[] bs, int offset) {
-		double d = (bs[offset + 1] << 8) + bs[offset];
+		double d = readShortData(bs, offset);
 		d /= Short.MAX_VALUE;
 		return d;
 	}
@@ -48,7 +62,7 @@ public class NormalizeWaveData {
 				}
 			}
 		}
-		System.out.println("PlotData count=" + lastResultIndex);
+		Log.d(TAG, "converted PlotData count=" + lastResultIndex);
 		return result;
 	}
 
@@ -58,11 +72,14 @@ public class NormalizeWaveData {
 	 * @return FFT後のデータ
 	 */
 	public static double[] convertFFT(double[] ds) {
+		Log.d(TAG, "convert FFT start: " + ds.length);
 		if (!FastFourierTransformer.isPowerOf2(ds.length)) {
 			ds = convertRequiredArray(ds);
 		}
 		FastFourierTransformer fft = new FastFourierTransformer();
+		Log.d(TAG, "calculate FFT start: " + ds.length);
 		Complex[] complexs = fft.transform(ds);
+		Log.d(TAG, "convert FFT end.");
 		return normalizeArray(complexs);
 	}
 	private static double[] normalizeArray(Complex[] cs) {

@@ -3,12 +3,8 @@
  */
 package jp.dip.taoe.android.myvoicerecorder;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.util.Log;
 import android.widget.ProgressBar;
 
 /**
@@ -17,15 +13,13 @@ import android.widget.ProgressBar;
  */
 public class MicRecordTask extends StopableTask {
 
-	private static final String TAG = "VoiceChangerSample";
-
+	private final WaveDataStore store;
 	private final int bufferSize;
 	private final AudioRecord recorder;
-	private final OutputStream rawOutput;
 
-	public MicRecordTask(ProgressBar bar, int sampleRateInHz, int channelConfig, int audioFormat, OutputStream rawOutput) throws IllegalArgumentException {
+	public MicRecordTask(ProgressBar bar, WaveDataStore store, int sampleRateInHz, int channelConfig, int audioFormat) throws IllegalArgumentException {
 		super(bar);
-		this.rawOutput = rawOutput;
+		this.store = store;
 		this.bufferSize = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat) * 2;
 		this.recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig, audioFormat, bufferSize);
 	}
@@ -38,6 +32,7 @@ public class MicRecordTask extends StopableTask {
 		isRunning.set(true);
 		android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
+		store.clearWaveData();
 		recorder.startRecording();
 		try {
 			byte[] buffer = new byte[bufferSize];
@@ -45,11 +40,7 @@ public class MicRecordTask extends StopableTask {
 
 			while (isRunning()) {
 				int len = recorder.read(buffer, 0, buffer.length);
-				try {
-					rawOutput.write(buffer, 0, len);
-				} catch (IOException ex) {
-					Log.w(TAG, "Fail to write cache data.", ex);
-				}
+				store.addWaveData(buffer, 0, len);
 				addValue(len);
 
 				if (getMax() <= getValue()) {
@@ -61,12 +52,6 @@ public class MicRecordTask extends StopableTask {
 			recorder.stop();
 			recorder.release();
 			isRunning.set(false);
-			if (rawOutput != null) {
-				try {
-					rawOutput.close();
-				} catch (IOException e) {
-				}
-			}
 		}
 	}
 }

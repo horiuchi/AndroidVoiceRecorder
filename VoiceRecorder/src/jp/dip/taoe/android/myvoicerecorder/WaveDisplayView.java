@@ -4,7 +4,6 @@
 package jp.dip.taoe.android.myvoicerecorder;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Random;
 
 import jp.dip.taoe.android.myvoicerecorder.util.NormalizeWaveData;
@@ -18,7 +17,7 @@ import android.view.View;
  * @author horiuchihiroki
  *
  */
-public class WaveDisplayView extends View {
+public class WaveDisplayView extends View implements WaveDataStore {
 
 	private final Handler handler;
 	private final ByteArrayOutputStream waveData = new ByteArrayOutputStream(8000 * 10);
@@ -33,12 +32,12 @@ public class WaveDisplayView extends View {
 		super(context);
 		handler = new Handler();
 
-		waveBaseLine.setARGB(255, 128, 128, 128);
+		waveBaseLine.setARGB(255, 128, 255, 128);
 		waveBaseLine.setStyle(Paint.Style.STROKE);
 		waveBaseLine.setStrokeWidth(1.0f);
 		waveBaseLine.setStrokeCap(Paint.Cap.ROUND);
 
-		fftDataLine.setARGB(128, 192, 192, 192);
+		fftDataLine.setARGB(128, 128, 128, 255);
 		fftDataLine.setStyle(Paint.Style.STROKE);
 		fftDataLine.setStrokeWidth(1.0f);
 		fftDataLine.setStrokeCap(Paint.Cap.ROUND);
@@ -66,25 +65,43 @@ public class WaveDisplayView extends View {
 				lastY = y;
 			}
 		}
-		{
-			/*double[] ffts = NormalizeWaveData.convertFFT(ds);
+		/*{
+			double[] ffts = NormalizeWaveData.convertFFT(ds);
 			float lastY = 0.0f;
 			for (int x = 0; x < width; x++) {
 				float y = height * (float)(1.0 - ffts[x]);
 				canvas.drawLine(x + margin, lastY, x+1 + margin, y, fftDataLine);
 				lastY = y;
-			}*/
-		}
+			}
+		}*/
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.dip.taoe.android.myvoicerecorder.WaveDataStore#getAllWaveData()
+	 */
+	@Override
+	public byte[] getAllWaveData() {
+		return waveData.toByteArray();
+	}
+
+	/* (non-Javadoc)
+	 * @see jp.dip.taoe.android.myvoicerecorder.WaveDataStore#addWaveData(byte[])
+	 */
+	@Override
 	public void addWaveData(byte[] data) {
-		try {
-			waveData.write(data);
-		} catch (IOException e) {
-		}
+		addWaveData(data, 0, data.length);
+	}
+
+	@Override
+	public void addWaveData(byte[] data, int offset, int length) {
+		waveData.write(data, offset, length);
 		fireInvalidate();
 	}
 
+	/* (non-Javadoc)
+	 * @see jp.dip.taoe.android.myvoicerecorder.WaveDataStore#clearWaveData()
+	 */
+	@Override
 	public void clearWaveData() {
 		waveData.reset();
 		fireInvalidate();
@@ -117,8 +134,7 @@ public class WaveDisplayView extends View {
 		double dt = 1.0 / DATA_SIZE;
 		for (int index = 0; index < DATA_SIZE; index++, t += dt) {
 			short s = (short) (Short.MAX_VALUE * Math.sin(2.0 * Math.PI * t * freq));
-			data[index * 2] = (byte) s;
-			data[index * 2 + 1] = (byte) (s >> 8);
+			NormalizeWaveData.writeShortData(s, data, index * 2);
 		}
 
 		addWaveData(data);
@@ -138,8 +154,7 @@ public class WaveDisplayView extends View {
 			} else if (d < 0.0) {
 				s = -Short.MAX_VALUE;
 			}
-			data[index * 2] = (byte) s;
-			data[index * 2 + 1] = (byte) (s >> 8);
+			NormalizeWaveData.writeShortData(s, data, index * 2);
 		}
 
 		addWaveData(data);
