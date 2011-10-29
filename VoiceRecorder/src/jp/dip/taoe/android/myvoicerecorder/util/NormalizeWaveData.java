@@ -48,21 +48,29 @@ public class NormalizeWaveData {
 	 */
 	public static double[] convertPlotData(double[] ds, int count) {
 		double[] result = new double[count];
-		int interval = ds.length / count + (ds.length % count == 0 ? 0 : 1);
-		int lastResultIndex = -1;
-		for (int index = 0; index < ds.length; index++) {
+		int interval = ds.length / count;
+		int remainder = ds.length % count;
+
+		int resultIndex = 0;
+		for (int index = 0, counter = 0; index < ds.length; index++, counter++) {
+			if (counter >= interval) {
+				if (remainder > 0 && counter == interval) {
+					remainder--;
+				} else {
+					resultIndex++;
+					counter = 0;
+				}
+			}
 			double d = ds[index];
-			int resultIndex = index / interval;
-			if (lastResultIndex < resultIndex) {
+			if (counter == 0) {
 				result[resultIndex] = d;
-				lastResultIndex = resultIndex;
 			} else {
 				if (Math.abs(d) > Math.abs(result[resultIndex])) {
 					result[resultIndex] = d;
 				}
 			}
 		}
-		Log.d(TAG, "converted PlotData count=" + lastResultIndex);
+		Log.d(TAG, "converted PlotData count=" + resultIndex);
 		return result;
 	}
 

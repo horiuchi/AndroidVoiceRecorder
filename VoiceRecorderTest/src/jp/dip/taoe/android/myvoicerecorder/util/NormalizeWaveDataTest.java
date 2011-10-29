@@ -4,7 +4,6 @@
 package jp.dip.taoe.android.myvoicerecorder.util;
 
 import java.util.Arrays;
-import java.util.Random;
 
 import junit.framework.TestCase;
 
@@ -17,12 +16,6 @@ public class NormalizeWaveDataTest extends TestCase {
 	public void testConvertShort2ByteArray1() {
 		byte[] bs = new byte[20];
 		short s = 0;
-		short s2 = 1;
-		short s3 = -1;
-		short s4 = 100;
-		short s5 = Short.MAX_VALUE;
-		short s6 = -Short.MAX_VALUE;
-		short s7 = Short.MIN_VALUE;
 
 		NormalizeWaveData.writeShortData(s, bs, 0);
 		assertEquals(0, bs[0]);
@@ -122,19 +115,27 @@ public class NormalizeWaveDataTest extends TestCase {
 		{
 			double[] data = NormalizeWaveData.convertPlotData(ds, 6);
 			assertEquals(6, data.length);
+			assertEquals(1.0, data[0]);
+			assertEquals(1.0, data[5]);
 		}
 	}
 
 	public void testConvertPlotData2() {
 		double[] ds = new double[800];
-		Random random = new Random(0);
-		for (int index = 0; index < ds.length; index++) {
-			ds[index] = random.nextDouble();
-		}
-
+		Arrays.fill(ds, -1.0);
 		{
-			double[] data = NormalizeWaveData.convertPlotData(ds, 150);
-			assertEquals(150, data.length);
+			double[] data = NormalizeWaveData.convertPlotData(ds, 153);
+			assertEquals(153, data.length);
+			assertEquals(-1.0, data[0]);
+			assertEquals(-1.0, data[100]);
+			assertEquals(-1.0, data[152]);
+		}
+		{
+			double[] data = NormalizeWaveData.convertPlotData(ds, 77);
+			assertEquals(77, data.length);
+			assertEquals(-1.0, data[0]);
+			assertEquals(-1.0, data[10]);
+			assertEquals(-1.0, data[76]);
 		}
 	}
 

@@ -53,7 +53,7 @@ public class WaveDisplayView extends View implements WaveDataStore {
 
 		final int margin = 2;
 		int width = this.getWidth() - margin * 2;
-		int height = this.getHeight();
+		int height = this.getHeight() - margin * 2;
 
 		double[] ds = NormalizeWaveData.convertWaveData(bs);
 		{
@@ -61,7 +61,7 @@ public class WaveDisplayView extends View implements WaveDataStore {
 			float lastY = height / 2.0f;
 			for (int x = 0; x < width; x++) {
 				float y = height * -1 * (float)(plots[x] - 1.0) / 2.0f;
-				canvas.drawLine(x + margin, lastY, x+1 + margin, y, waveBaseLine);
+				canvas.drawLine(x + margin, lastY + margin, x+1 + margin, y + margin, waveBaseLine);
 				lastY = y;
 			}
 		}
