@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, VoiceChangerSampleActivity!</string>
+    <string name="app_name">VoiceChangerSample</string>
+    <string name="menu_button_recording">Record</string>
+    <string name="menu_button_play">Play</string>
+    <string name="menu_button_stop">Stop</string>
+    <string name="menu_button_transform">Transform</string>
+    <string name="menu_button_save">Save</string>
+    <string name="dialog_save_title">Save sound file</string>
+    <string name="dialog_save_button_save">Save</string>
+    <string name="dialog_save_button_cancel">Cansel</string>
+    <string name="dialog_save_message">Input save filename.</string>
+    <string name="dialog_save_radio_raw">Raw</string>
+    <string name="dialog_save_radio_wav">Wav</string>
+</resources>
