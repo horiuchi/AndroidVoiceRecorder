@@ -126,16 +126,20 @@ public class NormalizeWaveDataTest extends TestCase {
 		{
 			System.out.println(20/7);
 			System.out.println(19/3);
-			double[] data = NormalizeWaveData.convertPlotData(ds, 7);
+			double[][] data = NormalizeWaveData.convertPlotData(ds, 7);
 			assertEquals(7, data.length);
-			assertEquals(1.0, data[0]);
-			assertEquals(1.0, data[6]);
+			assertEquals(1.0, data[0][0]);
+			assertEquals(0.0, data[0][1]);
+			assertEquals(1.0, data[6][0]);
+			assertEquals(0.0, data[6][1]);
 		}
 		{
-			double[] data = NormalizeWaveData.convertPlotData(ds, 6);
+			double[][] data = NormalizeWaveData.convertPlotData(ds, 6);
 			assertEquals(6, data.length);
-			assertEquals(1.0, data[0]);
-			assertEquals(1.0, data[5]);
+			assertEquals(1.0, data[0][0]);
+			assertEquals(0.0, data[0][1]);
+			assertEquals(1.0, data[5][0]);
+			assertEquals(0.0, data[5][1]);
 		}
 	}
 
@@ -143,18 +147,20 @@ public class NormalizeWaveDataTest extends TestCase {
 		double[] ds = new double[800];
 		Arrays.fill(ds, -1.0);
 		{
-			double[] data = NormalizeWaveData.convertPlotData(ds, 153);
+			double[][] data = NormalizeWaveData.convertPlotData(ds, 153);
 			assertEquals(153, data.length);
-			assertEquals(-1.0, data[0]);
-			assertEquals(-1.0, data[100]);
-			assertEquals(-1.0, data[152]);
+			assertEquals(0.0, data[0][0]);
+			assertEquals(-1.0, data[0][1]);
+			assertEquals(-1.0, data[100][1]);
+			assertEquals(-1.0, data[152][1]);
 		}
 		{
-			double[] data = NormalizeWaveData.convertPlotData(ds, 77);
+			double[][] data = NormalizeWaveData.convertPlotData(ds, 77);
 			assertEquals(77, data.length);
-			assertEquals(-1.0, data[0]);
-			assertEquals(-1.0, data[10]);
-			assertEquals(-1.0, data[76]);
+			assertEquals(0.0, data[0][0]);
+			assertEquals(-1.0, data[0][1]);
+			assertEquals(-1.0, data[10][1]);
+			assertEquals(-1.0, data[76][1]);
 		}
 	}
 

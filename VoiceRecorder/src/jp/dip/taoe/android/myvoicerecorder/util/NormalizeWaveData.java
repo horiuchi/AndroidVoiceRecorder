@@ -87,8 +87,8 @@ public class NormalizeWaveData {
 	 * @param count 表示数
 	 * @return 切り詰められたデータ
 	 */
-	public static double[] convertPlotData(double[] ds, int count) {
-		double[] result = new double[count];
+	public static double[][] convertPlotData(double[] ds, int count) {
+		double[][] result = new double[count][];
 		int interval = ds.length / count;
 		int remainder = ds.length % count;
 
@@ -104,10 +104,14 @@ public class NormalizeWaveData {
 			}
 			double d = ds[index];
 			if (counter == 0) {
-				result[resultIndex] = d;
+				double[] work = new double[2];
+				work[d < 0 ? 1 : 0] = d;
+				result[resultIndex] = work;
 			} else {
-				if (Math.abs(d) > Math.abs(result[resultIndex])) {
-					result[resultIndex] = d;
+				if (d >= 0 && d > result[resultIndex][0]) {
+					result[resultIndex][0] = d;
+				} else if (d < 0 && d < result[resultIndex][1]) {
+					result[resultIndex][1] = d;
 				}
 			}
 		}
@@ -165,4 +169,19 @@ public class NormalizeWaveData {
 	public static byte[] normalizeWaveData(byte[] bs) {
 		return bs;
 	}
+	/*
+	public static byte[] normalizeWaveData(byte[] bs) {
+		byte[] result = new byte[bs.length];
+		for (int index = 0; index < bs.length / 2; index++) {
+			double d = convertToDouble(bs, index * 2);
+			convertFromDouble(normalize(d), result, index * 2);
+		}
+		return result;
+	}
+	private static double normalize(double d) {
+		double x = Math.abs(d);
+		if (x <= 0) return 0.0;
+		return Math.signum(d) * Math.sqrt(x);
+	}
+	*/
 }

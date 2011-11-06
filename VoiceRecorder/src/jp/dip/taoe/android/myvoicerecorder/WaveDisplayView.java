@@ -56,12 +56,29 @@ public class WaveDisplayView extends View implements WaveDataStore {
 
 		double[] ds = NormalizeWaveData.convertWaveData(bs);
 		{
-			double[] plots = NormalizeWaveData.convertPlotData(ds, width);
+			double[][] plots = NormalizeWaveData.convertPlotData(ds, width);
 			float lastY = height / 2.0f;
+			boolean isLastPlus = true;
 			for (int x = 0; x < width; x++) {
-				float y = height * -1 * (float)(plots[x] - 1.0) / 2.0f;
-				canvas.drawLine(x + margin, lastY + margin, x+1 + margin, y + margin, waveBaseLine);
-				lastY = y;
+				boolean wValue = plots[x][0] > 0.0 && plots[x][1] < 0.0;
+				if (wValue) {
+					double[] values = isLastPlus ?
+							new double[] { plots[x][1], plots[x][0] } :
+							new double[] { plots[x][0], plots[x][1] };
+					for (double d : values) {
+						lastY = drawWaveLine(canvas, d, x, lastY, height, margin);
+					}
+				} else {
+					double value = 0.0;
+					if (plots[x][1] < 0.0) {
+						value = plots[x][1];
+						isLastPlus = false;
+					} else {
+						value = plots[x][0];
+						isLastPlus = true;
+					}
+					lastY = drawWaveLine(canvas, value, x, lastY, height, margin);
+				}
 			}
 		}
 		/*{
@@ -73,6 +90,12 @@ public class WaveDisplayView extends View implements WaveDataStore {
 				lastY = y;
 			}
 		}*/
+	}
+
+	private float drawWaveLine(Canvas canvas, double value, float x, float y, int height, int margin) {
+		float nextY = height * -1 * (float)(value - 1.0) / 2.0f;
+		canvas.drawLine(x + margin, y + margin, x+1 + margin, nextY + margin, waveBaseLine);
+		return nextY;
 	}
 
 	/* (non-Javadoc)
